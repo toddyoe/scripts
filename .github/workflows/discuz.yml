@@ -1,0 +1,31 @@
+name: Discuz论坛签到
+
+on:
+  schedule:
+    - cron: '30 00 * * *'
+  workflow_dispatch:
+
+jobs:
+  discuz-checkin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: recursive
+
+      - name: Prepare
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+
+      - name: InstallDep
+        run: pip3 install requests ddddocr
+
+      - name: Checkin
+        env:
+          TASK_CONF_URL: ${{ secrets.DISCUZ_TASK_CONF_URL }}
+        run: python -u ./discuz/main.py
