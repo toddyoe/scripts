@@ -22,7 +22,7 @@ jobs:
           python-version: "3.x"
           architecture: "x64"
 
-      - name: InstallDep
+      - name: InstallDeps
         run: pip3 install requests ddddocr
 
       - name: Checkin

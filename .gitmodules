@@ -4,3 +4,6 @@
 [submodule "nodeseek"]
 	path = nodeseek
 	url = https://github.com/YYWO/NodeSeek-Signin.git
+[submodule "chatgpt-collector"]
+	path = chatgpt-collector
+	url = https://github.com/wzdnzd/chatgpt-collector.git

@@ -1,0 +1,62 @@
+name: OpenAI接口检测
+on:
+  schedule:
+    - cron: "20 00-15/9 * * *"
+  workflow_dispatch:
+
+env:
+  # time zone
+  TZ: Asia/Shanghai
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    name: OpenAI API checker
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: recursive
+
+      - name: Sync
+        run: |
+          git submodule init
+          git submodule update --remote
+
+          # sync chatgpt-collector
+          cd ./chatgpt-collector
+
+          git checkout main
+          git pull -f origin main
+
+          cd ..
+
+      - name: Prepare
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+
+      - name: InstallDeps
+        run: pip3 install -r ./chatgpt-collector/requirements.txt
+        if: ${{ vars.CHATGPT_ENABLE != 'false' }}
+
+      # if necessary
+      - name: Check
+        env:
+          # token
+          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+
+          # chatgpt collect task config
+          COLLECT_CONF: ${{ secrets.CHATGPT_TASK_CONF }}
+
+          # remove all params from url
+          NO_PARAMS: ${{ vars.CHATGPT_NO_PARAMS }}
+
+          # nopecha key
+          NOPECHA_KEY: ${{ secrets.CHATGPT_NOPECHA_KEY }}
+
+        run: python -u ./chatgpt-collector/main.py
+        if: ${{ vars.CHATGPT_ENABLE != 'false' }}
