@@ -1,3 +1,6 @@
 [submodule "linuxdo"]
 	path = linuxdo
 	url = https://github.com/LeeYouRan/linux.do-bot.git
+[submodule "nodeseek"]
+	path = nodeseek
+	url = https://github.com/YYWO/NodeSeek-Signin.git

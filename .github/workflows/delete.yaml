@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  del_runs:
+  delete-runs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
