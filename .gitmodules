@@ -1,0 +1,3 @@
+[submodule "linuxdo"]
+	path = linuxdo
+	url = https://github.com/LeeYouRan/linux.do-bot.git
