@@ -25,6 +25,7 @@ class Discuz:
         username: str,
         password: str,
         cookie: str = "",
+        extras: list[str] = None,
         questionid: str = "0",
         answer: str = None,
         pub_url: str = "",
@@ -32,6 +33,8 @@ class Discuz:
         self.hostname = hostname
         if pub_url != "":
             self.hostname = self.get_host(pub_url)
+
+        self.extras = extras
 
         self.discuz_login = base.Login(self.hostname, username, password, cookie, questionid, answer)
 
@@ -75,14 +78,24 @@ class Discuz:
         signin_url = f"https://{self.hostname}"
         self.session.get(signin_url)
 
-        formhash = self.discuz_login.post_formhash
-        url = f"https://{self.hostname}/k_misign-sign.html"
-        if formhash:
-            url += (
-                f"?operation=qiandao&format=global_usernav_extra&formhash={formhash}&inajax=1&ajaxtarget=k_misign_topb"
-            )
+        if self.extras and isinstance(self.extras, list):
+            logging.info(f"{len(self.extras)}个额外的子路径需要被访问：{self.extras}，hostname：{self.hostname}")
 
-        self.session.get(url)
+            for index, subpath in enumerate(self.extras):
+                if not subpath or not isinstance(subpath, str):
+                    continue
+                
+                url = f"https://{self.hostname}{subpath}"
+                logging.info(f"即将访问第{index+1}个地址：{url}")
+
+                self.session.get(url, timeout=15)
+        else:
+            formhash = self.discuz_login.post_formhash
+            url = f"https://{self.hostname}/k_misign-sign.html"
+            if formhash:
+                url += f"?operation=qiandao&format=global_usernav_extra&formhash={formhash}&inajax=1&ajaxtarget=k_misign_topb"
+
+            self.session.get(url)
 
     def visit_home(self, start: int = 1, end: int = 10000, count: int = 10) -> None:
         start, count = max(1, start), max(count, 0)
@@ -153,7 +166,7 @@ def multi_thread_run(func: typing.Callable, tasks: list, num_threads: int = None
     return results
 
 
-def checkin(domain: str, username: str, password: str, cookie: str = "") -> None:
+def checkin(domain: str, username: str, password: str, cookie: str = "", extras: list = None) -> None:
     domain, username, password, cookie = trim(domain), trim(username), trim(password), trim(cookie)
     hostname = extract_domain(url=domain, include_protocal=False)
 
@@ -161,7 +174,7 @@ def checkin(domain: str, username: str, password: str, cookie: str = "") -> None
         logging.info(f"跳过 {domain} 签到，站点/用户名/密码或 cookie 为空")
         return
 
-    discuz = Discuz(hostname, username, password, cookie)
+    discuz = Discuz(hostname, username, password, cookie, extras)
 
     # 登录
     success = discuz.login()
@@ -204,7 +217,10 @@ def load_config(url: str) -> list[list[str]]:
                 password = trim(item.get("password", ""))
                 cookie = trim(item.get("cookie", ""))
 
-                tasks.append([domain, username, password, cookie])
+                extras = item.get("extras", [])
+                urls = [] if not extras or not isinstance(extras, list) else [trim(x) for x in extras]
+
+                tasks.append([domain, username, password, cookie, urls])
 
         return tasks
     except:
