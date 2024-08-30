@@ -41,6 +41,7 @@ jobs:
           PUSHPLUS_TOKEN: ${{ secrets.NODESEEK_PUSHPLUS_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.NODESEEK_TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.NODESEEK_CHAT_ID }}
+          NS_RANDOM: ${{ vars.NODESEEK_RANDOM }}
         run: |
           pip3 install requests curl_cffi
           python -u ./nodeseek/nodeseek_sign.py
