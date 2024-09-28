@@ -31,6 +31,10 @@ jobs:
           git checkout main
           git pull -f origin main
 
+          # delete and remove
+          rm -rf notify.py
+          mv Linux.do.py main.py
+
           cd ..
 
       - name: Prepare
@@ -56,8 +60,11 @@ jobs:
           # mark probability
           COLLECT_PROBABILITY: ${{ vars.LINUXDO_COLLECT_PROBABILITY }}
         run: |
-          pip3 install playwright requests tabulate configparser
-          playwright install
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          python -m pip install --upgrade pip
+          pip install selenium
+
           python -u ./linuxdo/main.py
 
         if: ${{ vars.LINUXDO_KEEP_ALIVE_HELLO != 'false' }}

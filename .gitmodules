@@ -1,9 +1,11 @@
-[submodule "linuxdo"]
-	path = linuxdo
-	url = https://github.com/LeeYouRan/linux.do-bot.git
 [submodule "nodeseek"]
 	path = nodeseek
 	url = https://github.com/YYWO/NodeSeek-Signin.git
 [submodule "chatgpt-collector"]
 	path = chatgpt-collector
 	url = https://github.com/wzdnzd/chatgpt-collector.git
+[submodule "linuxdo"]
+	path = linuxdo
+	
+	# https://github.com/LeeYouRan/Discuss-Bot.git
+	url = https://github.com/WowYiJiu/Linux.do-KeepAlive.git

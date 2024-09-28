@@ -1,7 +1,7 @@
-name: LinuxDo签到【Anya】
+name: LinuxDo签到【Hello】
 on:
   schedule:
-    - cron: "55 00 * * *"
+    - cron: "25 09 * * *"
   workflow_dispatch:
 
 env:
@@ -31,10 +31,6 @@ jobs:
           git checkout main
           git pull -f origin main
 
-          # delete and remove
-          rm -rf notify.py
-          mv Linux.do.py main.py
-
           cd ..
 
       - name: Prepare
@@ -46,10 +42,10 @@ jobs:
       - name: Checkin
         env:
           # username
-          LINUXDO_USERNAME: ${{ secrets.LINUXDO_USERNAME_ANYA }}
+          LINUXDO_USERNAME: ${{ secrets.LINUXDO_USERNAME_HELLO }}
 
           # password
-          LINUXDO_PASSWORD: ${{ secrets.LINUXDO_PASSWORD_ANYA }}
+          LINUXDO_PASSWORD: ${{ secrets.LINUXDO_PASSWORD_HELLO }}
 
           # like probability
           LIKE_PROBABILITY: ${{ vars.LINUXDO_LIKE_PROBABILITY }}
@@ -60,11 +56,8 @@ jobs:
           # mark probability
           COLLECT_PROBABILITY: ${{ vars.LINUXDO_COLLECT_PROBABILITY }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          python -m pip install --upgrade pip
-          pip install selenium
-
+          pip3 install playwright requests tabulate configparser
+          playwright install
           python -u ./linuxdo/main.py
 
-        if: ${{ vars.LINUXDO_KEEP_ALIVE_ANYA != 'false' }}
+        if: ${{ vars.LINUXDO_KEEP_ALIVE_HELLO != 'false' }}
