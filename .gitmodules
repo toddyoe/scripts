@@ -9,3 +9,6 @@
 	
 	# https://github.com/LeeYouRan/Discuss-Bot.git
 	url = https://github.com/WowYiJiu/Linux.do-KeepAlive.git
+[submodule "cigma-ql"]
+	path = cigma-ql
+	url = https://github.com/AKA-Cigma/QLscripts.git
