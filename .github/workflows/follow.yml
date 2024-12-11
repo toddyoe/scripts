@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  nodeseek-checkin:
+  follow-checkin:
     runs-on: ubuntu-latest
 
     steps:
