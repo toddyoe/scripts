@@ -28,7 +28,7 @@ class Login:
         self.questionid = questionid
         self.answer = answer
         self.cookie = cookie
-        self.ocr = ddddocr.DdddOcr(show_ad=False)
+        self.ocr = ddddocr.DdddOcr()
 
     def form_hash(self):
         content = self.session.get(f"https://{self.hostname}/member.php?mod=logging&action=login").text
