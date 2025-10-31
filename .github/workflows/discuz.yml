@@ -2,7 +2,7 @@ name: Discuz论坛签到
 
 on:
   schedule:
-    - cron: '30 00 * * *'
+    - cron: '30 02 * * *'
   workflow_dispatch:
 
 jobs:
