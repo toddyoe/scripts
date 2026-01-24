@@ -25,8 +25,8 @@ jobs:
           git submodule init
           git submodule update --remote
 
-          # sync chatgpt-collector
-          cd ./chatgpt-collector
+          # sync ai-collector
+          cd ./ai-collector
 
           git checkout main
           git pull -f origin main
@@ -40,7 +40,7 @@ jobs:
           architecture: "x64"
 
       - name: InstallDeps
-        run: pip3 install -r ./chatgpt-collector/requirements.txt
+        run: pip3 install -r ./ai-collector/requirements.txt
         if: ${{ vars.CHATGPT_ENABLE != 'false' }}
 
       # if necessary
@@ -58,5 +58,5 @@ jobs:
           # nopecha key
           NOPECHA_KEY: ${{ secrets.CHATGPT_NOPECHA_KEY }}
 
-        run: python -u ./chatgpt-collector/main.py
+        run: python -u ./ai-collector/main.py
         if: ${{ vars.CHATGPT_ENABLE != 'false' }}

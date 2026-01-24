@@ -1,12 +1,15 @@
 [submodule "nodeseek"]
 	path = nodeseek
 	url = https://github.com/YYWO/NodeSeek-Signin.git
-[submodule "chatgpt-collector"]
-	path = chatgpt-collector
-	url = https://github.com/wzdnzd/chatgpt-collector.git
 [submodule "cigma-ql"]
 	path = cigma-ql
 	url = https://github.com/AKA-Cigma/QLscripts.git
 [submodule "anyrouter"]
 	path = anyrouter
 	url = https://github.com/millylee/anyrouter-check-in.git
+[submodule "leaflow"]
+	path = leaflow
+	url = https://github.com/eooce/leaflow-auto-checkin.git
+[submodule "ai-collector"]
+	path = ai-collector
+	url = https://github.com/wzdnzd/ai-collector.git
