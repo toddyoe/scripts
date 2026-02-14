@@ -23,7 +23,7 @@ jobs:
           architecture: "x64"
 
       - name: InstallDeps
-        run: pip3 install requests ddddocr
+        run: pip3 install requests ddddocr==1.5.6
 
       - name: Checkin
         env:

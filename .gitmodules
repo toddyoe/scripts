@@ -1,9 +1,6 @@
 [submodule "nodeseek"]
 	path = nodeseek
 	url = https://github.com/YYWO/NodeSeek-Signin.git
-[submodule "cigma-ql"]
-	path = cigma-ql
-	url = https://github.com/AKA-Cigma/QLscripts.git
 [submodule "anyrouter"]
 	path = anyrouter
 	url = https://github.com/millylee/anyrouter-check-in.git
@@ -13,3 +10,4 @@
 [submodule "ai-collector"]
 	path = ai-collector
 	url = https://github.com/wzdnzd/ai-collector.git
+
