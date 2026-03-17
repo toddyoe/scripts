@@ -1,6 +1,3 @@
-[submodule "nodeseek"]
-	path = nodeseek
-	url = https://github.com/YYWO/NodeSeek-Signin.git
 [submodule "anyrouter"]
 	path = anyrouter
 	url = https://github.com/millylee/anyrouter-check-in.git
@@ -11,3 +8,6 @@
 	path = ai-collector
 	url = https://github.com/wzdnzd/ai-collector.git
 
+[submodule "nodeseek"]
+	path = nodeseek
+	url = https://github.com/nova73x/nodeseek-AutoDaily-signin.git
