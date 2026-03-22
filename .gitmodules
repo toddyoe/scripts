@@ -8,6 +8,3 @@
 	path = ai-collector
 	url = https://github.com/wzdnzd/ai-collector.git
 
-[submodule "nodeseek"]
-	path = nodeseek
-	url = https://github.com/nova73x/nodeseek-AutoDaily-signin.git
