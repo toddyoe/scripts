@@ -1,6 +1,8 @@
 # NodeSeek 自动签到 - GitHub Actions 版
 > 原代码库：https://github.com/nova73x/nodeseek-AutoDaily-signin
 
+> 另一个代码库：https://github.com/kafuneri/NodeSeek-Signin
+
 基于 GitHub Actions 的 NodeSeek 论坛自动化工具，无需服务器，Fork 即用。
 
 ## ✨ 功能
