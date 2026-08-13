@@ -8,3 +8,6 @@
 	path = ai-collector
 	url = https://github.com/wzdnzd/ai-collector.git
 
+[submodule "aggregator"]
+	path = aggregator
+	url = https://github.com/wzdnzd/aggregator.git

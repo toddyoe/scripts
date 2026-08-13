@@ -1,0 +1,78 @@
+name: 节点自动抓取
+on:
+  schedule:
+    - cron: "00 01 * * *"
+    - cron: "55 10 * * *"
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+  PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    name: aggregate some network proxy and chatgpt subscriptions
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Sync
+        run: |
+          git submodule init
+          git submodule update --remote
+
+          cd aggregator
+
+          git checkout main
+          git pull -f origin main
+
+          cd ..
+
+      - name: Prepare
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+          cache: "pip"
+
+      - name: Install
+        working-directory: ./aggregator
+        run: pip3 install PyYAML tqdm geoip2 pycryptodomex fofa-hack
+
+      - name: Aggregate
+        working-directory: ./aggregator
+        env:
+          # network proxy aggregate config
+          SUBSCRIBE_CONF: ${{ secrets.AGG_TASK_CONF }}
+
+          # github cookie
+          GH_COOKIE: ${{ secrets.AGG_GH_COOKIE }}
+
+          # github token
+          GH_TOKEN: ${{ secrets.AGG_GH_TOKEN }}
+
+          # network reachable
+          REACHABLE: ${{ vars.AGG_REACHABLE }}
+
+          # not check connective
+          SKIP_ALIVE_CHECK: ${{ vars.AGG_SKIP_ALIVE_CHECK }}
+
+          # skip remark
+          SKIP_REMARK: ${{ vars.AGG_SKIP_REMARK }}
+
+          # workflow mode
+          WORKFLOW_MODE: ${{ vars.AGG_WORKFLOW_MODE }}
+
+          # include special protocols, such as vless hysteria2 and hysteria
+          ENABLE_SPECIAL_PROTOCOLS: ${{ vars.AGG_ENABLE_SPECIAL_PROTOCOLS }}
+
+        run: python -u ./subscribe/process.py --overwrite --invisible
+
+      - name: Timestamp
+        working-directory: ./aggregator
+        run: date
