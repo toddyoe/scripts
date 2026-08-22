@@ -1,12 +1,10 @@
 [submodule "anyrouter"]
 	path = anyrouter
 	url = https://github.com/millylee/anyrouter-check-in.git
+
 [submodule "leaflow"]
 	path = leaflow
 	url = https://github.com/eooce/leaflow-auto-checkin.git
-[submodule "ai-collector"]
-	path = ai-collector
-	url = https://github.com/wzdnzd/ai-collector.git
 
 [submodule "aggregator"]
 	path = aggregator
