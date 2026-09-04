@@ -1,8 +1,8 @@
 name: 节点自动抓取
 on:
   schedule:
-    - cron: "15 02 * * *"
-    - cron: "55 10 * * *"
+    - cron: "55 06,13,20 * * *"
+      timezone: "Asia/Shanghai"
   workflow_dispatch:
 
 env:
@@ -12,8 +12,8 @@ env:
 jobs:
   aggregate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    name: aggregate some network proxy and chatgpt subscriptions
+    timeout-minutes: 90
+    name: Aggregate
 
     steps:
       - name: Checkout
@@ -71,7 +71,7 @@ jobs:
           # include special protocols, such as vless hysteria2 and hysteria
           ENABLE_SPECIAL_PROTOCOLS: ${{ vars.AGG_ENABLE_SPECIAL_PROTOCOLS }}
 
-        run: python -u ./subscribe/process.py --overwrite --invisible
+        run: python -u ./subscribe/process.py --invisible
 
       - name: Timestamp
         working-directory: ./aggregator
