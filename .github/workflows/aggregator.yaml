@@ -12,7 +12,7 @@ env:
 jobs:
   aggregate:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     name: Aggregate
 
     steps:
@@ -72,6 +72,162 @@ jobs:
           ENABLE_SPECIAL_PROTOCOLS: ${{ vars.AGG_ENABLE_SPECIAL_PROTOCOLS }}
 
         run: python -u ./subscribe/process.py --invisible
+
+      - name: Refresh
+        if: ${{ success() }}
+        working-directory: ./aggregator
+        shell: bash
+        env:
+          RESIN_REFRESH_ENALE: ${{ vars.RESIN_REFRESH_ENALE }}
+          RESIN_SERVER_DOMAIN: ${{ secrets.RESIN_SERVER_DOMAIN }}
+          RESIN_API_TOKEN: ${{ secrets.RESIN_API_TOKEN }}
+          RESIN_SUBSCRIPTION_ID: ${{ secrets.RESIN_SUBSCRIPTION_ID }}
+        run: |
+          set -Eeuo pipefail
+
+          # ============================================================
+          # 1. Check whether Resin refresh is enabled
+          # ============================================================
+          case "${RESIN_REFRESH_ENALE:-}" in
+            true|1)
+              ;;
+            *)
+              echo "Skip due to resin refresh is disabled"
+              exit 0
+              ;;
+          esac
+
+          # ============================================================
+          # 2. Validate required parameters
+          # ============================================================
+          if [[ -z "${RESIN_SERVER_DOMAIN:-}" ]]; then
+            echo "::error::RESIN_SERVER_DOMAIN is empty"
+            exit 1
+          fi
+
+          if [[ -z "${RESIN_API_TOKEN:-}" ]]; then
+            echo "::error::RESIN_API_TOKEN is empty"
+            exit 1
+          fi
+
+          if [[ -z "${RESIN_SUBSCRIPTION_ID:-}" ]]; then
+            echo "::error::RESIN_SUBSCRIPTION_ID is empty"
+            exit 1
+          fi
+
+          # API token:
+          # only require non-empty and no whitespace.
+          if [[ "${RESIN_API_TOKEN}" =~ [[:space:]] ]]; then
+            echo "::error::RESIN_API_TOKEN contains whitespace"
+            exit 1
+          fi
+
+          # Subscription ID:
+          # Since it is inserted directly into the URL path, keep it strict
+          if [[ ! "${RESIN_SUBSCRIPTION_ID}" =~ ^[A-Za-z0-9._~-]+$ ]]; then
+            echo "::error::RESIN_SUBSCRIPTION_ID contains invalid characters"
+            exit 1
+          fi
+
+          # ============================================================
+          # 3. Validate server domain / IP / optional port
+          # ============================================================
+          if [[ "${RESIN_SERVER_DOMAIN}" =~ [[:space:]] ]]; then
+            echo "::error::RESIN_SERVER_DOMAIN contains whitespace"
+            exit 1
+          fi
+
+          # Host only:
+          #   example.com
+          #   example.com:443
+          #   192.168.1.1
+          #   192.168.1.1:8080
+          #   [2001:db8::1]
+          #   [2001:db8::1]:8443
+          #
+          # Do not allow a complete URL or path/query fragment
+          if [[ "${RESIN_SERVER_DOMAIN}" == *"://"* ||
+                "${RESIN_SERVER_DOMAIN}" == *"/"* ||
+                "${RESIN_SERVER_DOMAIN}" == *"?"* ||
+                "${RESIN_SERVER_DOMAIN}" == *"#"* ]]; then
+            echo "::error::RESIN_SERVER_DOMAIN must contain host[:port] only"
+            exit 1
+          fi
+
+          # ============================================================
+          # 4. Build URL
+          # ============================================================
+          REFRESH_URL="https://${RESIN_SERVER_DOMAIN}/api/v1/subscriptions/${RESIN_SUBSCRIPTION_ID}/actions/refresh"
+
+          RESPONSE_FILE="$(mktemp)"
+          HTTP_CODE_FILE="$(mktemp)"
+
+          cleanup() {
+            rm -f "${RESPONSE_FILE}" "${HTTP_CODE_FILE}"
+          }
+          trap cleanup EXIT
+
+          # ============================================================
+          # 5. Trigger refresh with retry
+          # ============================================================
+          echo "Triggering Resin subscription refresh"
+
+          CURL_EXIT=0
+
+          curl \
+            --silent \
+            --show-error \
+            --location \
+            --request POST \
+            --url "${REFRESH_URL}" \
+            --header "Authorization: Bearer ${RESIN_API_TOKEN}" \
+            --header "Accept: application/json" \
+            --connect-timeout 10 \
+            --max-time 60 \
+            --retry 5 \
+            --retry-delay 5 \
+            --retry-max-time 120 \
+            --retry-all-errors \
+            --retry-connrefused \
+            --output "${RESPONSE_FILE}" \
+            --write-out '%{http_code}' \
+            > "${HTTP_CODE_FILE}" \
+            || CURL_EXIT=$?
+
+          HTTP_CODE="$(cat "${HTTP_CODE_FILE}" 2>/dev/null || true)"
+
+          # ============================================================
+          # 6. curl-level failure
+          # ============================================================
+          if [[ "${CURL_EXIT}" -ne 0 ]]; then
+            echo "::error::Resin refresh request failed (curl exit code: ${CURL_EXIT})"
+            exit "${CURL_EXIT}"
+          fi
+
+          # ============================================================
+          # 7. HTTP status check
+          # ============================================================
+          if [[ "${HTTP_CODE}" != 2* ]]; then
+            echo "::error::Resin refresh API returned HTTP ${HTTP_CODE}"
+            exit 1
+          fi
+
+          # ============================================================
+          # 8. API response check
+          #
+          # Expected:
+          #   {"status":"ok"}
+          #
+          # Ignore insignificant whitespace.
+          # ============================================================
+          RESPONSE="$(tr -d '[:space:]' < "${RESPONSE_FILE}")"
+
+          if [[ "${RESPONSE}" != '{"status":"ok"}' ]]; then
+            echo "::error::Resin refresh API returned an unexpected response"
+            exit 1
+          fi
+
+          echo "Resin subscription refresh succeeded"
 
       - name: Timestamp
         working-directory: ./aggregator
